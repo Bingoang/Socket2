@@ -11,6 +11,7 @@ import java.net.SocketTimeoutException;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 public class ClientThread implements Runnable {
 	private Socket s;
@@ -29,13 +30,42 @@ public class ClientThread implements Runnable {
 	@Override
 	public void run() {
 		s = new Socket();
+		//连接服务器 并设置连接超时为3秒
 		try {
-			s.connect(new InetSocketAddress("192.168.191.1", 1234), 5000);
+			s.connect(new InetSocketAddress("192.168.191.1", 1234), 3000);
+			Message msg= new Message();
+			msg.what=0x123;
+			msg.obj = "网络连接成功！";
+			handler.sendMessage(msg);
+			Log.v("昂", "网络连接成功！");
 			br = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			os = s.getOutputStream();
 			// 启动一条子线程来读取服务器相应的数据
 			new Thread() {
-
+				
+//				private boolean startPing(String ip){	Log.e("Ping", "startPing...");
+//				boolean success=false;
+//				Process p =null;
+//				ip="192.168.191.1";
+//				 try { 
+//			            p = Runtime.getRuntime().exec("ping -c 1 -i 0.2 -W 1 " +ip); 
+//			            int status = p.waitFor(); 
+//			            if (status == 0) { 
+//			                success=true; 
+//			            } else { 
+//			                success=false;  
+//			            } 
+//			            } catch (IOException e) { 
+//			            	success=false;   
+//			            } catch (InterruptedException e) { 
+//			            	success=false;   
+//			            }finally{
+//			            	p.destroy();
+//			            }
+//			         
+//				 return success;
+//			}
+				
 				@Override
 				public void run() {
 					String content = null;
@@ -49,6 +79,7 @@ public class ClientThread implements Runnable {
 							msg.obj = content;
 							handler.sendMessage(msg);
 						}
+						
 					} catch (IOException io) {
 						io.printStackTrace();
 					}
@@ -76,11 +107,12 @@ public class ClientThread implements Runnable {
 			};
 			// 启动Looper
 			Looper.loop();
-
+			
 		} catch (SocketTimeoutException e) {
 			Message msg = new Message();
 			msg.what = 0x123;
 			msg.obj = "网络连接超时！";
+			Log.v("昂", "网络连接超时！");
 			handler.sendMessage(msg);
 		} catch (IOException io) {
 			io.printStackTrace();

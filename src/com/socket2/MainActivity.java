@@ -38,12 +38,14 @@ public class MainActivity extends Activity {
 				if (msg.what == 0x123) {
 					// 将读取的内容追加显示在文本框中
 					show.append("\n" + msg.obj.toString());
+//					show.setText(msg.obj.toString());
 				}
 			}
 		};
 		clientThread = new ClientThread(handler);
 		// 客户端启动ClientThread线程创建网络连接、读取来自服务器的数据
 		new Thread(clientThread).start();
+		//connect按钮触发连接
 		connect.setOnClickListener(new OnClickListener() {
 
 			@Override
